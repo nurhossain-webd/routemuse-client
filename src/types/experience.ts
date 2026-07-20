@@ -17,6 +17,9 @@ export interface Experience {
   excluded: string[];
   availableFrom: string;
   availableTo: string;
+  status?: "published" | "archived";
+  createdAt?: string;
+  updatedAt?: string;
   creator?:
     | string
     | {
