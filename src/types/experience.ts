@@ -17,6 +17,37 @@ export interface Experience {
   excluded: string[];
   availableFrom: string;
   availableTo: string;
+  creator?:
+    | string
+    | {
+        _id: string;
+        name: string;
+        avatar?: string | null;
+      };
+}
+
+export interface Review {
+  _id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  user:
+    | string
+    | {
+        _id: string;
+        name: string;
+        avatar?: string | null;
+      };
+}
+
+export interface ReviewListData {
+  reviews: Review[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface ExperienceListData {
