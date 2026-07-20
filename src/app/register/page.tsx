@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GoogleLogin } from "@react-oauth/google";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,6 +11,7 @@ import { z } from "zod";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { GuestOnlyRoute } from "@/components/auth/guest-only-route";
+import { GoogleCredentialButton } from "@/components/auth/google-credential-button";
 import { PasswordField } from "@/components/auth/password-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -150,17 +150,10 @@ function RegisterForm() {
           <span className="h-px flex-1 bg-slate-200" />or register with
           <span className="h-px flex-1 bg-slate-200" />
         </div>
-        <div className="flex justify-center">
-          <GoogleLogin
-            onSuccess={(credential) =>
-              credential.credential
-                ? googleLogin.mutate(credential.credential)
-                : toast.error("Google did not return an ID token")
-            }
-            onError={() => toast.error("Google registration could not start")}
-            useOneTap={false}
-          />
-        </div>
+        <GoogleCredentialButton
+          disabled={googleLogin.isPending || registration.isPending}
+          onCredential={(credential) => googleLogin.mutate(credential)}
+        />
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Already have an account?{" "}
