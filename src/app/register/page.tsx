@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GoogleLogin } from "@react-oauth/google";
 import { useMutation } from "@tanstack/react-query";
-import { FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -21,64 +20,70 @@ import { api, getApiErrorMessage } from "@/lib/api";
 import { getSafeRedirect } from "@/lib/safe-redirect";
 import type { ApiSuccess, AuthResult } from "@/types/auth";
 
-const loginSchema = z.object({
-  email: z.email("Enter a valid email address"),
-  password: z.string().min(1, "Enter your password").max(72),
-});
-type LoginValues = z.infer<typeof loginSchema>;
+const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, "Enter at least 2 characters").max(80),
+    email: z.email("Enter a valid email address"),
+    password: z
+      .string()
+      .min(8, "Use at least 8 characters")
+      .max(72, "Password cannot exceed 72 characters"),
+    confirmPassword: z.string().min(1, "Confirm your password"),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-function LoginForm() {
+type RegisterValues = z.infer<typeof registerSchema>;
+
+function RegisterForm() {
   const { signIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const destination = getSafeRedirect(searchParams.get("next"));
-  const registerHref = `/register?next=${encodeURIComponent(destination)}`;
-  const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
-  const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
-  const demoConfigured = Boolean(demoEmail && demoPassword);
+  const loginHref = `/login?next=${encodeURIComponent(destination)}`;
   const {
     register,
     handleSubmit,
-    reset,
-    setFocus,
     formState: { errors },
-  } = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+  } = useForm<RegisterValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  const finishLogin = async (result: AuthResult) => {
+  const finishAuthentication = async (result: AuthResult) => {
     await signIn(result.token, result.user);
-    toast.success(`Welcome back, ${result.user.name}`);
+    toast.success(`Welcome to RouteMuse, ${result.user.name}`);
     router.replace(destination);
   };
 
-  const localLogin = useMutation({
-    mutationFn: async (values: LoginValues) =>
-      (await api.post<ApiSuccess<AuthResult>>("/auth/login", values)).data.data,
-    onSuccess: finishLogin,
+  const registration = useMutation({
+    mutationFn: async (values: RegisterValues) =>
+      (
+        await api.post<ApiSuccess<AuthResult>>("/auth/register", {
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        })
+      ).data.data,
+    onSuccess: finishAuthentication,
   });
   const googleLogin = useMutation({
     mutationFn: async (idToken: string) =>
       (
         await api.post<ApiSuccess<AuthResult>>("/auth/google", { idToken })
       ).data.data,
-    onSuccess: finishLogin,
+    onSuccess: finishAuthentication,
   });
 
-  const fillDemoCredentials = () => {
-    if (!demoEmail || !demoPassword) {
-      toast.error("Demo credentials are not configured for this environment");
-      return;
-    }
-    reset({ email: demoEmail, password: demoPassword });
-    localLogin.reset();
-    setFocus("email");
-    toast.success("Demo credentials filled. Select Log in to continue.");
-  };
-
-  const serverError = localLogin.isError
-    ? getApiErrorMessage(localLogin.error)
+  const serverError = registration.isError
+    ? getApiErrorMessage(registration.error)
     : googleLogin.isError
       ? getApiErrorMessage(googleLogin.error)
       : null;
@@ -86,8 +91,8 @@ function LoginForm() {
   return (
     <GuestOnlyRoute>
       <AuthShell
-        title="Welcome back"
-        description="Log in to plan, save, review, and manage travel experiences."
+        title="Create your account"
+        description="Start saving experiences and shaping travel plans around what matters to you."
       >
         {serverError && (
           <div
@@ -101,12 +106,18 @@ function LoginForm() {
         <form
           className="mt-7 grid gap-5"
           onSubmit={handleSubmit((values) => {
-            localLogin.reset();
+            registration.reset();
             googleLogin.reset();
-            localLogin.mutate(values);
+            registration.mutate(values);
           })}
           noValidate
         >
+          <Input
+            label="Full name"
+            autoComplete="name"
+            error={errors.name?.message}
+            {...register("name")}
+          />
           <Input
             label="Email address"
             type="email"
@@ -116,35 +127,27 @@ function LoginForm() {
           />
           <PasswordField
             label="Password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             error={errors.password?.message}
             {...register("password")}
           />
+          <PasswordField
+            label="Confirm password"
+            autoComplete="new-password"
+            error={errors.confirmPassword?.message}
+            {...register("confirmPassword")}
+          />
           <Button
             type="submit"
-            isLoading={localLogin.isPending}
+            isLoading={registration.isPending}
             disabled={googleLogin.isPending}
           >
-            Log in
+            Create account
           </Button>
         </form>
 
-        <button
-          type="button"
-          onClick={fillDemoCredentials}
-          disabled={!demoConfigured || localLogin.isPending}
-          className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber/40 bg-amber/10 px-4 text-sm font-semibold text-navy disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <FlaskConical className="size-4" /> Use demo account
-        </button>
-        {!demoConfigured && (
-          <p className="mt-2 text-center text-xs text-slate-500">
-            Demo login is disabled until public demo variables are configured.
-          </p>
-        )}
-
         <div className="my-6 flex items-center gap-3 text-xs text-slate-500">
-          <span className="h-px flex-1 bg-slate-200" />or continue with
+          <span className="h-px flex-1 bg-slate-200" />or register with
           <span className="h-px flex-1 bg-slate-200" />
         </div>
         <div className="flex justify-center">
@@ -154,15 +157,15 @@ function LoginForm() {
                 ? googleLogin.mutate(credential.credential)
                 : toast.error("Google did not return an ID token")
             }
-            onError={() => toast.error("Google login could not start")}
+            onError={() => toast.error("Google registration could not start")}
             useOneTap={false}
           />
         </div>
 
         <p className="mt-6 text-center text-sm text-slate-600">
-          New to RouteMuse?{" "}
-          <Link href={registerHref} className="font-semibold text-teal hover:underline">
-            Create an account
+          Already have an account?{" "}
+          <Link href={loginHref} className="font-semibold text-teal hover:underline">
+            Log in
           </Link>
         </p>
       </AuthShell>
@@ -170,16 +173,16 @@ function LoginForm() {
   );
 }
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <Suspense
       fallback={
         <div className="grid min-h-[55vh] place-items-center text-slate-600">
-          Loading login…
+          Loading registration…
         </div>
       }
     >
-      <LoginForm />
+      <RegisterForm />
     </Suspense>
   );
 }

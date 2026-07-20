@@ -21,8 +21,8 @@ const authenticatedLinks = [
   { href: "/explore", label: "Explore" },
   { href: "/planner", label: "AI Planner" },
   { href: "/recommendations", label: "Recommendations" },
-  { href: "/experiences/new", label: "Add Experience" },
-  { href: "/dashboard/experiences", label: "Manage Experiences" },
+  { href: "/items/add", label: "Add Experience" },
+  { href: "/items/manage", label: "Manage Experiences" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 
@@ -54,7 +54,7 @@ export function Navbar() {
               <Link href="/profile" className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-navy hover:bg-slate-100"><UserRound className="size-4" />{user?.name ?? "Profile"}</Link>
               <button type="button" onClick={logout} className="grid size-11 place-items-center rounded-xl text-slate-600 hover:bg-slate-100" aria-label="Log out"><LogOut className="size-5" /></button>
             </>
-          ) : <Link href="/login" className="inline-flex min-h-11 items-center rounded-xl bg-teal px-4 text-sm font-semibold text-white hover:bg-teal/90">Log in</Link>}
+          ) : <><Link href="/login" className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-navy hover:bg-slate-100">Log in</Link><Link href="/register" className="inline-flex min-h-11 items-center rounded-xl bg-teal px-4 text-sm font-semibold text-white hover:bg-teal/90">Create account</Link></>}
         </div>
         <button type="button" className="grid size-11 place-items-center rounded-xl text-navy hover:bg-slate-100 xl:hidden" aria-expanded={mobileOpen} aria-controls="mobile-navigation" aria-label="Toggle navigation" onClick={() => setMobileOpen((value) => !value)}>{mobileOpen ? <X /> : <Menu />}</button>
       </ResponsiveContainer>
@@ -62,7 +62,7 @@ export function Navbar() {
         <nav id="mobile-navigation" className="border-t bg-white px-4 py-4 xl:hidden" aria-label="Mobile navigation">
           <div className="mx-auto grid max-w-7xl gap-1">
             {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)} className={cn("rounded-xl px-4 py-3 text-sm font-medium text-slate-700", pathname === link.href && "bg-teal/10 text-teal")}>{link.label}</Link>)}
-            {isAuthenticated ? <><Link href="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-slate-700"><UserRound className="size-4" />Profile</Link><button type="button" onClick={logout} className="flex min-h-11 items-center gap-2 rounded-xl px-4 text-left text-sm font-medium text-slate-700"><LogOut className="size-4" />Log out</button></> : <Link href="/login" onClick={() => setMobileOpen(false)} className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-teal px-4 text-sm font-semibold text-white"><Sparkles className="size-4" />Log in</Link>}
+            {isAuthenticated ? <><Link href="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-slate-700"><UserRound className="size-4" />Profile</Link><button type="button" onClick={logout} className="flex min-h-11 items-center gap-2 rounded-xl px-4 text-left text-sm font-medium text-slate-700"><LogOut className="size-4" />Log out</button></> : <><Link href="/login" onClick={() => setMobileOpen(false)} className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-xl border bg-white px-4 text-sm font-semibold text-navy">Log in</Link><Link href="/register" onClick={() => setMobileOpen(false)} className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-teal px-4 text-sm font-semibold text-white"><Sparkles className="size-4" />Create account</Link></>}
           </div>
         </nav>
       )}

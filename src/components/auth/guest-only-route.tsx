@@ -1,24 +1,24 @@
 "use client";
 
 import { LoaderCircle } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useAuth } from "@/context/auth-context";
+import { getSafeRedirect } from "@/lib/safe-redirect";
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+export function GuestOnlyRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
-  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      const destination = `${window.location.pathname}${window.location.search}`;
-      router.replace(`/login?next=${encodeURIComponent(destination)}`);
+    if (!isLoading && isAuthenticated) {
+      const callback = new URLSearchParams(window.location.search).get("next");
+      router.replace(getSafeRedirect(callback));
     }
-  }, [isAuthenticated, isLoading, pathname, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading || isAuthenticated) {
     return (
       <div className="grid min-h-[55vh] place-items-center" role="status">
         <span className="flex items-center gap-3 text-sm font-medium text-slate-600">
