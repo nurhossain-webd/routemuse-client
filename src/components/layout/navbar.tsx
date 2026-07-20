@@ -15,6 +15,7 @@ const publicLinks = [
   { href: "/explore", label: "Explore" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  { href: "/help", label: "Help" },
 ];
 const authenticatedLinks = [
   { href: "/", label: "Home" },
@@ -24,6 +25,7 @@ const authenticatedLinks = [
   { href: "/items/add", label: "Add Experience" },
   { href: "/items/manage", label: "Manage Experiences" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/help", label: "Help" },
 ];
 
 export function Navbar() {

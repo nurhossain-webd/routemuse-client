@@ -1,2 +1,4 @@
-import { FeaturePage } from "@/components/pages/feature-page";
-export default function DashboardPage() { return <FeaturePage eyebrow="Overview" title="Dashboard" description="See your saved plans, recommendations, reviews, and creator activity in one place." />; }
+import type { Metadata } from "next";
+import { DashboardPage } from "@/components/dashboard/dashboard-page";
+export const metadata: Metadata = { title: "Dashboard | RouteMuse AI", description: "Review your RouteMuse planning, favorites, creator activity, and travel interests." };
+export default function Page() { return <DashboardPage/>; }

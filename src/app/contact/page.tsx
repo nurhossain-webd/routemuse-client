@@ -1,5 +1,4 @@
-import { Mail, MapPin, Phone } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { ResponsiveContainer } from "@/components/ui/responsive-container";
-export default function ContactPage() { return <main className="bg-slate-50 py-12 sm:py-16"><ResponsiveContainer className="grid gap-10"><PageHeader eyebrow="Contact" title="We would love to hear from you" description="Ask a question, share product feedback, or discuss a travel experience you want to publish." /><div className="grid gap-5 md:grid-cols-3"><Card><Mail className="size-6 text-teal" /><h2 className="mt-4 font-bold text-navy">Email</h2><a className="mt-2 block text-sm text-teal hover:underline" href="mailto:hello@routemuse.ai">hello@routemuse.ai</a></Card><Card><Phone className="size-6 text-teal" /><h2 className="mt-4 font-bold text-navy">Phone</h2><a className="mt-2 block text-sm text-teal hover:underline" href="tel:+8801700000000">+880 1700 000000</a></Card><Card><MapPin className="size-6 text-teal" /><h2 className="mt-4 font-bold text-navy">Location</h2><p className="mt-2 text-sm text-slate-600">Dhaka, Bangladesh</p></Card></div></ResponsiveContainer></main>; }
+import type { Metadata } from "next";
+import { ContactPage } from "@/components/contact/contact-page";
+export const metadata: Metadata = { title: "Contact | RouteMuse AI", description: "Contact RouteMuse AI about product support, feedback, or published travel experiences." };
+export default function Page() { return <ContactPage/>; }
