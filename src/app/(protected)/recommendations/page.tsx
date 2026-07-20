@@ -1,2 +1,4 @@
-import { FeaturePage } from "@/components/pages/feature-page";
-export default function RecommendationsPage() { return <FeaturePage eyebrow="For you" title="Recommendations" description="Review personalized experience ideas informed by your preferences and feedback." />; }
+import type { Metadata } from "next";
+import { RecommendationsPage } from "@/components/recommendations/recommendations-page";
+export const metadata: Metadata = { title: "Recommendations | RouteMuse AI", description: "Personalized travel experiences ranked from your preferences and RouteMuse activity." };
+export default function Page() { return <RecommendationsPage/>; }
