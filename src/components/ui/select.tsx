@@ -6,11 +6,11 @@ interface SelectOption { value: string; label: string }
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
-  options: SelectOption[];
+  options?: SelectOption[];
   placeholder?: string;
 }
 
-export function Select({ label, error, options, placeholder, id, className, ...props }: SelectProps) {
+export function Select({ label, error, options = [], placeholder, id, className, ...props }: SelectProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   return (
