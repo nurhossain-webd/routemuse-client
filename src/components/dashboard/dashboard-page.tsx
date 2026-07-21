@@ -5,23 +5,181 @@ import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer as ChartContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { PageHeader } from "@/components/ui/page-header";
 import { ResponsiveContainer } from "@/components/ui/responsive-container";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { api, getApiErrorMessage } from "@/lib/api";
 import type { DashboardSummary } from "@/types/dashboard";
+
 const chartColors = ["#0F766E", "#F59E0B", "#0F172A", "#64748B", "#94A3B8", "#CBD5E1"];
+
 export function DashboardPage() {
   const query = useQuery({ queryKey: ["dashboard-summary"], queryFn: async () => (await api.get<{ data: DashboardSummary }>("/dashboard/summary")).data.data });
-  if (query.isLoading) return <main className="min-h-screen bg-slate-50 py-10"><ResponsiveContainer className="grid gap-6"><Skeleton className="h-28"/><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">{Array.from({ length: 5 }, (_, index) => <Skeleton key={index} className="h-32"/>)}</div><div className="grid gap-5 lg:grid-cols-2"><Skeleton className="h-80"/><Skeleton className="h-80"/></div></ResponsiveContainer></main>;
-  if (query.isError) return <main className="py-16"><ResponsiveContainer><EmptyState icon={BarChart3} title="Dashboard unavailable" description={getApiErrorMessage(query.error)} action={<button className="rounded-xl bg-teal px-4 py-3 font-semibold text-white" onClick={() => void query.refetch()}>Try again</button>}/></ResponsiveContainer></main>;
-  const data = query.data!; const stats = [{ label: "Experiences created", value: data.statistics.experiencesCreated, icon: PlusCircle }, { label: "Favorites", value: data.statistics.favorites, icon: Bookmark }, { label: "Reviews", value: data.statistics.reviewsSubmitted, icon: MessageSquareText }, { label: "AI plans", value: data.statistics.aiPlansGenerated, icon: Sparkles }, { label: "Plan estimates", value: `$${data.statistics.estimatedPlanSpending.toLocaleString()}`, icon: Map }];
-  return <main className="min-h-screen bg-slate-50 py-10"><ResponsiveContainer className="grid gap-8"><div className="flex flex-wrap items-end justify-between gap-4"><PageHeader eyebrow="Your activity" title="Dashboard" description="A practical view of your travel planning, saved ideas, and RouteMuse activity."/><div className="flex gap-2"><Link href="/planner" className="rounded-xl bg-teal px-4 py-3 text-sm font-semibold text-white">Plan a trip</Link><Link href="/recommendations" className="rounded-xl border bg-white px-4 py-3 text-sm font-semibold text-navy">View matches</Link></div></div>
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5" aria-label="Summary statistics">{stats.map(({ label, value, icon: Icon }) => <Card key={label}><Icon className="size-5 text-teal"/><p className="mt-5 text-2xl font-bold text-navy">{value}</p><p className="mt-1 text-sm text-slate-500">{label}</p></Card>)}</section>
-    <div className="grid gap-5 lg:grid-cols-2"><Card><h2 className="text-lg font-bold text-navy">Monthly planning activity</h2><p className="text-sm text-slate-500">Plans generated over the last 12 months</p><div className="mt-5 h-64"><ChartContainer width="100%" height="100%"><BarChart data={data.monthlyPlanningActivity}><CartesianGrid strokeDasharray="3 3" vertical={false}/><XAxis dataKey="month" tick={{ fontSize: 11 }}/><YAxis allowDecimals={false}/><Tooltip/><Bar dataKey="plans" fill="#0F766E" radius={[6,6,0,0]}/></BarChart></ChartContainer></div></Card>
-    <Card><h2 className="text-lg font-bold text-navy">Category interests</h2><p className="text-sm text-slate-500">Categories represented in your recorded activity</p>{data.categoryInteractionDistribution.length ? <div className="mt-5 h-64"><ChartContainer width="100%" height="100%"><PieChart><Pie data={data.categoryInteractionDistribution} dataKey="count" nameKey="category" innerRadius={45} outerRadius={85} paddingAngle={3}>{data.categoryInteractionDistribution.map((item,index) => <Cell key={item.category} fill={chartColors[index % chartColors.length]}/>)}</Pie><Tooltip/></PieChart></ChartContainer></div> : <p className="mt-16 text-center text-sm text-slate-500">Explore, save, or review experiences to build this chart.</p>}</Card></div>
-    <div className="grid gap-5 lg:grid-cols-2"><Card><div className="flex justify-between"><h2 className="text-lg font-bold text-navy">Recent plans</h2><Link href="/planner" className="text-sm font-semibold text-teal">Open planner</Link></div><div className="mt-4 grid gap-3">{data.recentPlans.length ? data.recentPlans.map((plan) => <Link key={plan._id} href="/planner" className="flex justify-between rounded-xl border p-4 hover:border-teal"><span><strong className="block text-navy">{plan.title}</strong><span className="text-sm text-slate-500">{plan.destination}</span></span><span className="font-semibold text-navy">${plan.estimatedTotal.toLocaleString()}</span></Link>) : <p className="py-8 text-center text-sm text-slate-500">No trip plans yet.</p>}</div></Card>
-    <Card><div className="flex justify-between"><h2 className="text-lg font-bold text-navy">Recently saved</h2><Link href="/explore" className="text-sm font-semibold text-teal">Explore more</Link></div><div className="mt-4 grid gap-3">{data.recentSavedExperiences.length ? data.recentSavedExperiences.map(({ _id, experience }) => experience && <Link key={_id} href={`/experiences/${experience.slug}`} className="rounded-xl border p-4 hover:border-teal"><strong className="block text-navy">{experience.title}</strong><span className="text-sm text-slate-500">{experience.location}, {experience.country}</span></Link>) : <p className="py-8 text-center text-sm text-slate-500">You have not saved an experience yet.</p>}</div></Card></div>
-    <Card><h2 className="text-lg font-bold text-navy">Recent activity</h2><div className="mt-4 grid gap-2">{data.recentInteractions.length ? data.recentInteractions.map((interaction) => <div key={interaction._id} className="flex flex-wrap justify-between gap-2 border-b py-3 last:border-0"><span className="text-sm text-slate-700"><strong className="capitalize text-navy">{interaction.type.replaceAll("_", " ")}</strong>{interaction.experience ? ` · ${interaction.experience.title}` : ""}</span><time className="text-xs text-slate-500">{new Date(interaction.createdAt).toLocaleDateString()}</time></div>) : <p className="py-6 text-sm text-slate-500">No recent activity.</p>}</div></Card>
-  </ResponsiveContainer></main>;
+
+  if (query.isLoading) {
+    return (
+      <DashboardShell title="Dashboard" description="A practical view of your travel planning, saved ideas, and RouteMuse activity.">
+        <ResponsiveContainer className="grid gap-6">
+          <Skeleton className="h-28" />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">{Array.from({ length: 5 }, (_, index) => <Skeleton key={index} className="h-32" />)}</div>
+          <div className="grid gap-5 lg:grid-cols-2"><Skeleton className="h-80" /><Skeleton className="h-80" /></div>
+        </ResponsiveContainer>
+      </DashboardShell>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <DashboardShell title="Dashboard" description="A practical view of your travel planning, saved ideas, and RouteMuse activity.">
+        <ResponsiveContainer>
+          <EmptyState
+            icon={BarChart3}
+            title="Dashboard unavailable"
+            description={getApiErrorMessage(query.error)}
+            action={<button className="rounded-xl bg-teal px-4 py-3 font-semibold text-white" onClick={() => void query.refetch()}>Try again</button>}
+          />
+        </ResponsiveContainer>
+      </DashboardShell>
+    );
+  }
+
+  const data = query.data!;
+  const stats = [
+    { label: "Experiences created", value: data.statistics.experiencesCreated, icon: PlusCircle },
+    { label: "Favorites", value: data.statistics.favorites, icon: Bookmark },
+    { label: "Reviews", value: data.statistics.reviewsSubmitted, icon: MessageSquareText },
+    { label: "AI plans", value: data.statistics.aiPlansGenerated, icon: Sparkles },
+    { label: "Plan estimates", value: `$${data.statistics.estimatedPlanSpending.toLocaleString()}`, icon: Map },
+  ];
+
+  return (
+    <DashboardShell title="Dashboard" description="A practical view of your travel planning, saved ideas, and RouteMuse activity.">
+      <div className="grid gap-8">
+        <div className="flex flex-wrap items-end justify-between gap-4 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <div>
+            <p className="text-sm uppercase tracking-[0.28em] text-slate-500">Your activity</p>
+            <h2 className="mt-3 text-3xl font-semibold text-navy">Dashboard</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">A practical view of your travel planning, saved ideas, and RouteMuse activity.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/planner" className="rounded-2xl bg-teal px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-teal/20">Plan a trip</Link>
+            <Link href="/recommendations" className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-navy hover:bg-slate-50">View matches</Link>
+          </div>
+        </div>
+
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5" aria-label="Summary statistics">
+          {stats.map(({ label, value, icon: Icon }) => (
+            <Card key={label} className="space-y-4">
+              <Icon className="size-5 text-teal" />
+              <p className="text-2xl font-bold text-navy">{value}</p>
+              <p className="text-sm text-slate-500">{label}</p>
+            </Card>
+          ))}
+        </section>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+          <Card>
+            <h2 className="text-lg font-bold text-navy">Monthly planning activity</h2>
+            <p className="text-sm text-slate-500">Plans generated over the last 12 months</p>
+            <div className="mt-5 h-64">
+              <ChartContainer width="100%" height="100%">
+                <BarChart data={data.monthlyPlanningActivity}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="plans" fill="#0F766E" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
+            </div>
+          </Card>
+
+          <Card>
+            <h2 className="text-lg font-bold text-navy">Category interests</h2>
+            <p className="text-sm text-slate-500">Categories represented in your recorded activity</p>
+            {data.categoryInteractionDistribution.length ? (
+              <div className="mt-5 h-64">
+                <ChartContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={data.categoryInteractionDistribution} dataKey="count" nameKey="category" innerRadius={45} outerRadius={85} paddingAngle={3}>
+                      {data.categoryInteractionDistribution.map((item, index) => (
+                        <Cell key={item.category} fill={chartColors[index % chartColors.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ChartContainer>
+              </div>
+            ) : (
+              <p className="mt-16 text-center text-sm text-slate-500">Explore, save, or review experiences to build this chart.</p>
+            )}
+          </Card>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+          <Card>
+            <div className="flex justify-between">
+              <h2 className="text-lg font-bold text-navy">Recent plans</h2>
+              <Link href="/planner" className="text-sm font-semibold text-teal">Open planner</Link>
+            </div>
+            <div className="mt-4 grid gap-3">
+              {data.recentPlans.length ? (
+                data.recentPlans.map((plan) => (
+                  <Link key={plan._id} href="/planner" className="flex justify-between rounded-2xl border border-slate-200 p-4 hover:border-teal">
+                    <span>
+                      <strong className="block text-navy">{plan.title}</strong>
+                      <span className="text-sm text-slate-500">{plan.destination}</span>
+                    </span>
+                    <span className="font-semibold text-navy">${plan.estimatedTotal.toLocaleString()}</span>
+                  </Link>
+                ))
+              ) : (
+                <p className="py-8 text-center text-sm text-slate-500">No trip plans yet.</p>
+              )}
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex justify-between">
+              <h2 className="text-lg font-bold text-navy">Recently saved</h2>
+              <Link href="/explore" className="text-sm font-semibold text-teal">Explore more</Link>
+            </div>
+            <div className="mt-4 grid gap-3">
+              {data.recentSavedExperiences.length ? (
+                data.recentSavedExperiences.map(({ _id, experience }) =>
+                  experience ? (
+                    <Link key={_id} href={`/experiences/${experience.slug}`} className="rounded-2xl border border-slate-200 p-4 hover:border-teal">
+                      <strong className="block text-navy">{experience.title}</strong>
+                      <span className="text-sm text-slate-500">{experience.location}, {experience.country}</span>
+                    </Link>
+                  ) : null,
+                )
+              ) : (
+                <p className="py-8 text-center text-sm text-slate-500">You have not saved an experience yet.</p>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        <Card>
+          <h2 className="text-lg font-bold text-navy">Recent activity</h2>
+          <div className="mt-4 grid gap-2">
+            {data.recentInteractions.length ? (
+              data.recentInteractions.map((interaction) => (
+                <div key={interaction._id} className="flex flex-wrap justify-between gap-2 border-b border-slate-200 py-3 last:border-0">
+                  <span className="text-sm text-slate-700">
+                    <strong className="capitalize text-navy">{interaction.type.replaceAll("_", " ")}</strong>
+                    {interaction.experience ? ` · ${interaction.experience.title}` : ""}
+                  </span>
+                  <time className="text-xs text-slate-500">{new Date(interaction.createdAt).toLocaleDateString()}</time>
+                </div>
+              ))
+            ) : (
+              <p className="py-6 text-sm text-slate-500">No recent activity.</p>
+            )}
+          </div>
+        </Card>
+      </div>
+    </DashboardShell>
+  );
 }
