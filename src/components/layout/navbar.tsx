@@ -12,7 +12,6 @@ import {
   Search,
   Sparkles,
   User,
-  UserRound,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,15 +26,15 @@ import { ResponsiveContainer } from "../ui/responsive-container";
 const publicLinks = [
   { href: "/", label: "Home", icon: Home },
   { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/planner", label: "AI Planner", icon: Sparkles },
+  { href: "/planner", label: "AI Planner", icon: Sparkles, tabletOverflow: true },
   { href: "/recommendations", label: "Recommendations", icon: Grid },
 ];
 
 const authenticatedLinks = [
   { href: "/", label: "Home", icon: Home },
   { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/planner", label: "AI Planner", icon: Sparkles },
-  { href: "/items/add", label: "Add Experience", icon: PlusSquare },
+  { href: "/planner", label: "AI Planner", icon: Sparkles, tabletOverflow: true },
+  { href: "/items/add", label: "Add Experience", icon: PlusSquare, tabletOverflow: true },
   { href: "/items/manage", label: "My Trips", icon: Grid },
   { href: "/dashboard", label: "Dashboard", icon: Grid },
 ];
@@ -59,8 +58,8 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-sm pr-15">
-      <ResponsiveContainer className="flex h-20 items-center justify-between gap-4 px-0 py-3">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-sm xl:pr-15">
+      <ResponsiveContainer className="flex h-20 items-center justify-between gap-2 px-0 py-3 xl:gap-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm shadow-slate-200/50 transition hover:bg-slate-50">
             <span className="grid h-11 w-11 place-items-center rounded-full bg-teal/10 text-teal shadow-sm shadow-teal/10">
@@ -70,7 +69,7 @@ export function Navbar() {
           </Link>
         </div>
 
-        <nav className="hidden flex-1 items-center justify-center gap-2 xl:flex" aria-label="Primary navigation">
+        <nav className="hidden flex-1 items-center justify-center gap-1 md:flex xl:gap-2" aria-label="Primary navigation">
           {links.map((link) => {
             const Icon = link.icon;
             const active = pathname === link.href;
@@ -80,20 +79,21 @@ export function Navbar() {
                 href={link.href}
                 onClick={() => setProfileOpen(false)}
                 className={cn(
-                  "flex items-center gap-2 whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-medium transition duration-150",
+                  "items-center gap-2 whitespace-nowrap rounded-2xl px-2 py-2 text-sm font-medium transition duration-150 xl:px-4",
+                  link.tabletOverflow ? "hidden xl:flex" : "flex",
                   active
                     ? "bg-teal/10 text-teal"
                     : "text-slate-600 hover:bg-slate-100 hover:text-navy",
                 )}
               >
-                <Icon className="size-4" />
+                <Icon className="hidden size-4 lg:block" />
                 {link.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 xl:inline-flex"
@@ -170,7 +170,7 @@ export function Navbar() {
       </ResponsiveContainer>
 
       {mobileOpen && (
-        <nav id="mobile-navigation" className="border-t bg-white px-4 py-5 xl:hidden" aria-label="Mobile navigation">
+        <nav id="mobile-navigation" className="border-t bg-white px-4 py-5 xl:hidden" aria-label="Additional navigation">
           <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
             <div className="flex items-center justify-between gap-4 pb-4">
               <Link href="/" className="flex items-center gap-3 text-sm font-semibold text-slate-900">
@@ -193,6 +193,7 @@ export function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className={cn(
                       "flex items-center gap-3 rounded-3xl px-4 py-3 text-sm font-semibold transition",
+                      !link.tabletOverflow && "md:hidden",
                       pathname === link.href
                         ? "bg-teal/10 text-teal"
                         : "text-slate-700 hover:bg-white hover:text-navy",
