@@ -11,11 +11,11 @@
 </p>
 
 <p align="center">
-  <a href="YOUR_LIVE_SITE_URL">Live Demo</a>
+  <a href="https://routemuse-client.vercel.app">Live Demo</a>
   •
-  <a href="YOUR_FRONTEND_REPORY_URL">Frontend</a>
+  <a href="https://github.com/nurhossain-webd/routemuse-client.git">Frontend</a>
   •
-  <a href="YOUR_BACKEND_REPOSITORY_URL">Backend</a>
+  <a href="https://github.com/nurhossain-webd/routemuse-server.git">Backend</a>
 </p>
 
 ---
