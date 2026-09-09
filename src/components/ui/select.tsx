@@ -10,7 +10,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   placeholder?: string;
 }
 
-export function Select({ label, error, options = [], placeholder, id, className, ...props }: SelectProps) {
+export function Select({ label, error, options = [], placeholder, children, id, className, ...props }: SelectProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   return (
@@ -24,6 +24,7 @@ export function Select({ label, error, options = [], placeholder, id, className,
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        {children}
       </select>
       {error && <span className="text-sm text-red-700">{error}</span>}
     </label>
