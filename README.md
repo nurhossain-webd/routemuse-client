@@ -468,10 +468,6 @@ RouteMuse AI demonstrates:
 
 ## 📸 Application Preview
 
-## 📸 Application Preview
-
-## 📸 Application Preview
-
 <table>
   <tr>
     <td width="50%">
