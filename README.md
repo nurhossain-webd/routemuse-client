@@ -541,5 +541,5 @@ Built with a focus on modern full-stack development, scalable architecture, resp
 </p>
 
 <p align="center">
-  ⭐ If you like RouteMuse AI, consider giving the repository a star!
+  ⭐ If you like RouteMuse AI, consider giving the repository a star
 </p>
