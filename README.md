@@ -1,6 +1,6 @@
 # ✈️ RouteMuse AI
 
-![RouteMuse AI Home Page](./routemuse-client/public/home.png)
+![RouteMuse AI Home Page](./public/image/home.png)
 
 <p align="center">
   <strong>Discover experiences. Plan smarter. Travel your way.</strong>
@@ -476,14 +476,14 @@ RouteMuse AI demonstrates:
   <tr>
     <td width="50%">
       <img
-        src="./routemuse-client/public/explore.png"
+        src="./public/image/explore.png"
         alt="RouteMuse AI Explore Page"
         width="100%"
       />
     </td>
     <td width="50%">
       <img
-        src="./routemuse-client/public/dashboard.png"
+        src="./public/image/dashboard.png"
         alt="RouteMuse AI Dashboard"
         width="100%"
       />
